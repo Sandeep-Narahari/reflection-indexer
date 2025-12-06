@@ -136,6 +136,7 @@ Reflection.Transfer.handler(async ({ event, context }) => {
       image_url: undefined,
       name: undefined,
       description: undefined,
+      collection_id: collectionId,
     };
 
     collection = {
@@ -240,6 +241,7 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
       image_url: "",
       name: "",
       description: "",
+      collection_id: `${event.chainId}:${event.srcAddress.toLowerCase()}`,
     };
   }
 
@@ -257,10 +259,10 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
   }
 
   // Extract fields safely
-  const imageUrl =
-    metadataJson.image_url?.startsWith("ipfs://")
-      ? metadataJson.image_url.replace("ipfs://", "https://ipfs.io/ipfs/")
-      : metadataJson.image_url || "";
+  // const imageUrl =
+  //   metadataJson.image?.startsWith("ipfs://")
+  //     ? metadataJson.image.replace("ipfs://", "https://ipfs.io/ipfs/")
+  //     : metadataJson.image || "";
 
   const name = metadataJson.name || "";
   const description = metadataJson.description || "";
@@ -273,9 +275,10 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
     metadata: metadataRaw,
     mintedAt: token.mintedAt,
     burned: token.burned,
-    image_url: imageUrl,
+    image_url: metadataJson.image || "",
     name,
     description,
+    collection_id: token.collection_id,
   });
 });
 
@@ -288,5 +291,3 @@ Reflection.Unpaused.handler(async ({ event, context }) => {
 
   context.Reflection_Unpaused.set(entity);
 });
-
-
