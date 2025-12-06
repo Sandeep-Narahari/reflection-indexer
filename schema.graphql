@@ -70,6 +70,8 @@ type Token @entity {
   image_url: String
   name: String
   description: String
+  collection: Collection! @index
+
 }
 
 
@@ -98,4 +100,6 @@ type Collection {
   itemCount: Int!
   createdAt: BigInt!
   updatedAt: BigInt!
+  tokens: [Token!]! @derivedFrom(field: "collection")
+
 }
