@@ -137,6 +137,8 @@ Reflection.Transfer.handler(async ({ event, context }) => {
       name: undefined,
       description: undefined,
       collection_id: collectionId,
+      txHash: event.transaction.hash.toLowerCase()
+
     };
 
     collection = {
@@ -241,6 +243,7 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
       image_url: "",
       name: "",
       description: "",
+      txHash: event.transaction.hash.toLowerCase(),
       collection_id: `${event.chainId}:${event.srcAddress.toLowerCase()}`,
     };
   }
@@ -279,6 +282,7 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
     name,
     description,
     collection_id: token.collection_id,
+    txHash: event.transaction.hash.toLowerCase(),
   });
 });
 

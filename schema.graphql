@@ -70,6 +70,7 @@ type Token @entity {
   image_url: String
   name: String
   description: String
+  txHash: String
   collection: Collection! @index
 
 }
