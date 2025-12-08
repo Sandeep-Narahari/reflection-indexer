@@ -15,6 +15,8 @@ import {
   Reflection_Unpaused,
 } from "generated";
 
+import { extractIpfsHash } from "./ipfs";
+
 Reflection.Approval.handler(async ({ event, context }) => {
   const entity: Reflection_Approval = {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
@@ -229,8 +231,8 @@ Reflection.Transfer.handler(async ({ event, context }) => {
 
 Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
   const tokenId = event.params.tokenid.toString();
-  const ipfsHash = event.params.ipfsHash;
-
+  const ipfsUri = event.params.ipfsHash;
+  const ipHash= extractIpfsHash(ipfsUri)
   let token = await context.Token.get(tokenId);
   if (!token) {
     token = {
@@ -248,7 +250,7 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
     };
   }
 
-  const uri = ipfsHash
+  const uri = `https://gateway.pinata.cloud/ipfs/${ipHash}`
   let metadataRaw = "";
   let metadataJson: any = {};
 
