@@ -14,8 +14,11 @@ import {
   Reflection_TransferWithIPFS,
   Reflection_Unpaused,
 } from "generated";
+import pLimit from "p-limit";
+const limit = pLimit(3);  // only 3 IPFS fetches at a time
 
 import { extractIpfsHash } from "./ipfs";
+import { safeFetch } from "./utils";
 
 Reflection.Approval.handler(async ({ event, context }) => {
   const entity: Reflection_Approval = {
@@ -233,6 +236,8 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
   const tokenId = event.params.tokenid.toString();
   const ipfsUri = event.params.ipfsHash;
   const ipHash= extractIpfsHash(ipfsUri)
+  context.log.info(` ONLY HASHHHHHHHHHHHHHHHHHHH : , ${ipHash}, URIIIIIIIII  ${ipfsUri}`, {});
+
   let token = await context.Token.get(tokenId);
   if (!token) {
     token = {
@@ -250,25 +255,22 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
     };
   }
 
-  const uri = `https://gateway.pinata.cloud/ipfs/${ipHash}`
+  const uri = `https://nftstorage.link/ipfs/${ipHash}`
+  
   let metadataRaw = "";
   let metadataJson: any = {};
 
   // Fetch metadata JSON from IPFS
   try {
-    const res = await fetch(uri);
-    metadataRaw = await res.text();
-    metadataJson = JSON.parse(metadataRaw);
+    // LIMIT concurrency — prevents 429 errors
+    metadataJson = await limit(() => safeFetch(uri));
+
+    metadataRaw = JSON.stringify(metadataJson);
+
+    context.log.info(`Fetched metadata OK`, {});
   } catch (err) {
-    console.log("Failed to fetch metadata", err);
+    context.log.error(`Failed to fetch metadata: ${err}`);
   }
-
-  // Extract fields safely
-  // const imageUrl =
-  //   metadataJson.image?.startsWith("ipfs://")
-  //     ? metadataJson.image.replace("ipfs://", "https://ipfs.io/ipfs/")
-  //     : metadataJson.image || "";
-
   const name = metadataJson.name || "";
   const description = metadataJson.description || "";
 
@@ -276,7 +278,7 @@ Reflection.TransferWithIPFS.handler(async ({ event, context }) => {
   context.Token.set({
     id: token.id,
     owner: token.owner,
-    uri,
+    uri: event.params.ipfsHash,
     metadata: metadataRaw,
     mintedAt: token.mintedAt,
     burned: token.burned,

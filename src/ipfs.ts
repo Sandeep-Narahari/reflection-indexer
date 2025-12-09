@@ -1,24 +1,24 @@
-function extractIpfsHash(uri: string | null | undefined): string {
-  if (!uri) return "";
+function extractIpfsHash(input: string): string | null {
+  const match = input.match(
+    /(?:ipfs[:/]{1,3})([A-Za-z0-9]+)|([A-Za-z0-9]{46,})$/
+  );
 
-  // Case 1: starts with ipfs://
-  if (uri.startsWith("ipfs://")) {
-    return uri.replace("ipfs://", "").split("?")[0];
-  }
-
-  // Case 2: contains /ipfs/<hash>
-  const ipfsIndex = uri.indexOf("/ipfs/");
-  if (ipfsIndex !== -1) {
-    return uri.substring(ipfsIndex + 6).split("/")[0].split("?")[0];
-  }
-
-  // Case 3: raw hash
-  if (uri.startsWith("Qm") || uri.length === 46) {
-    return uri;
-  }
-
-  return "";
+  const hash = match ? (match[1] || match[2]) : null;
+  console.log(` Extracted IPFS Hash: ${hash} from input: ${input}`);
+  return hash;
 }
 
 
 export { extractIpfsHash };
+
+// function extractIpfsHash(input: string): string | null {
+//   const match = input.match(/(?:ipfs\/)([A-Za-z0-9]+)$/);
+//   return match ? match[1] : null;
+// }
+
+// Examples:
+extractIpfsHash("ipfs/QmTxxBR2raHNei8jFymhnAJFi5otVxREZgZjtcbmsV6rPk");
+// → "QmTxxBR2raHNei8jFymhnAJFi5otVxREZgZjtcbmsV6rPk"
+
+extractIpfsHash("https://gateway.pinata.cloud/ipfs/QmUyjcmHQfdDCjgJYgLKNJqniXPmPifJVcr2TcoEsKCDdX");
+// → "QmUyjcmHQfdDCjgJYgLKNJqniXPmPifJVcr2TcoEsKCDdX"
