@@ -10,7 +10,7 @@ networks:
   contracts:
   - name: reflection
     address:
-    - 0x35EB4D85F7Ede430e38053f6EA3AD8858397B630
+    - 0x83F6D386eeE7B286c86c85736b8f86084CE71F59
     handler: src/EventHandlers.ts
     events:
     - event: Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)
